@@ -23,91 +23,147 @@ int countlines(char *filename)
     lines++;
     }
   fclose(fp);
+  printf("number of lines: %d\n",lines);
   return lines;
 }
 
 
+
+
 void print_edge(edge *edge){
-	printf("from: %d to: %d metirc: %d-%d-%d \n",edge -> node_from, edge -> node_to, edge -> yy, edge -> mm, edge -> dd);
+
+
 }
 
 
 
+
+/*
+node *create_node(node **root,int new_ID,int edge_index){
+//	printf("Create %d\n",new_ID);
+	node *new_node = (node *) malloc(sizeof(node));
+	
+
+	new_node -> ID = new_ID;
+
+	node *actual_node = *root;
+	
+	if (!*root){		
+		*root = new_node;
+		add_edge_to_node(root,edge_index); 
+		return *root;	
+	}
+
+	printf("after root\n");
+    while (actual_node -> node_next != NULL)
+    {
+    	if(actual_node -> ID != new_node -> ID){ //check if node id is uniqe, else free malloc memory and return
+        	actual_node = actual_node -> node_next;
+        }else{
+        	add_edge_to_node(&actual_node,edge_index);
+        	free(new_node);//free new_node memory
+        	return actual_node;
+        }
+    }
+    printf("end while\n");
+    add_edge_to_node(&actual_node,edge_index);
+    actual_node->node_next = new_node;
+    //print_node(actual_node);
+    return new_node;
+
+}
+*/
+void add_edge_to_node(node **head, int new_index){
+	
+    return;
+	
+
+
+
+}
+
+
+void print_node(node *root){
+
+}
 
 
 int main()
 {
-	FILE *fp = fopen("input.csv","r");
+	FILE *fp = fopen("inputt.csv","r");
 	if (fp == NULL){
 	  		return 0;
 	}
 	//get number of rows in file
-	int LINES_COUNT = countlines("input.csv");
-	//printf("LINES: %d\n",LINES_COUNT);
-	//rows * 2 to get maximum number of vertex
-	//int LINES_COUNT = LINES_COUNT * 2;
-	char line[50];
+	int LINES_COUNT = countlines("inputt.csv");
+	char line[40];
+	
 	edge *data[LINES_COUNT];
+
+	int nodes[LINES_COUNT*2*2];
+
+	
 	int i = 0;
-	while(fgets (line,LINES_COUNT, fp) != NULL){
-//	printf("%s\n", line);
-
-	char * pch;
-	pch = strtok (line, ";");
-
-	edge *e = malloc(sizeof(edge));
-
-	
-	int j = 0;
-	
-	while( pch != NULL)
-	{
-	//	printf("%s\n", pch);
-	//	pch = strtok(NULL,",");
-		int val = atoi(pch);
-		if( j == 0){
-			e -> node_from = val;
-		}
-		if( j == 1){
-			e -> node_to = val;
-
-		}
-		if( j == 2){
-
-			char * pch2;
-			pch2 = strtok (pch, "-");
-			int k = 0;
-	
-			while( pch2 != NULL){
-				
-				int val2 = atoi(pch2);
-				if( k == 0){
-					e -> yy = val2;
-				}
-				if( k == 1){
-					e -> mm = val2;
-				}
-				if( k == 2){
-					e -> dd = val2;
-				}
-				k++;
-				pch2 = strtok(NULL,"-");	
-			}
-		}	
-		j++;
-		pch = strtok(NULL,";");
-			
+	while(fgets (line,40, fp) != NULL){
 		
-	}
-//	print_iris(iri);
-	
-	data[i] = e;
-	print_edge(data[i]);
-	//printf("%d\n",i );
-	i++;
-}
+		char * pch;
+		pch = strtok (line, ";");
 
-    
-    return 0;
+		
+		edge *e = (edge *) malloc(sizeof(edge));
+		int k = 0;
+		int j = 0;
+		//split row
+			while( pch != NULL)
+			{	
+				int val = atoi(pch);
+				if( j == 0){
+					nodes[k] = val;
+					
+					e -> node_from = k;
+					k++;
+				}
+				if( j == 1){
+					nodes[k] = val;		
+					e -> node_to = k;
+				}
+				if( j == 2){
+					char * pch2;
+					pch2 = strtok (pch, "-");
+					int k = 0;
+					//split date
+					while( pch2 != NULL){
+						int val2 = atoi(pch2);
+						if( k == 0){							
+							e -> yy = val2;
+						}
+						if( k == 1){
+							e -> mm = val2;
+						}
+						if( k == 2){
+							e -> dd = val2;
+						}
+						k++;
+						pch2 = strtok(NULL,"-");	
+					}
+				}	
+				j++;
+				pch = strtok(NULL,";");	
+			}
+			data[i] = e;
+			i++;
+			k++;
+	}
+
+
+	for(int p = 0;p< LINES_COUNT*2*2;p++){
+		printf("%d\n",nodes[p] );
+	}
+
+
+
+	printf("nodes: %lu\n",sizeof(nodes));
+
+	return 0;
 }
 
