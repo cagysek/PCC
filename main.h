@@ -16,7 +16,7 @@ struct EDGE{
 	int node_from;
 	int node_to;
 //	int node_from;
-//	int node_to; 
+//	int node_to;
 	int dd;
 	int mm;
 	int yy;
@@ -29,8 +29,10 @@ void print_edge(edge *edge);
 
 struct NODE{
 	int ID;
-	int node_original_id;
 	int *neighbours;
+	int neighbours_count;
+	int neighbours_max_count;
+	int neighbours_extension_number;
 	int visited;
 };
 
@@ -40,9 +42,12 @@ struct GRAPH{
 	edge *edge;
 };
 
+struct PATH{
+	int *iterate;
+};
 
-node *create_node(node **root,int new_ID,int edge_index);
+int create_node(node *nodes,int new_ID, int order);
 void print_node(node *root);
-void add_edge_to_node(node **head, int new_index);
+void add_edge_to_node(node *node, int edge);
 
 
