@@ -2,13 +2,7 @@
 
 typedef struct EDGE edge;
 typedef struct NODE node;
-typedef struct EDGE_INDEX edge_index;
-
-
-struct EDGE_INDEX{
-	int index;
-	edge_index *next;
-};
+typedef struct PATH path;
 
 
 struct EDGE{
@@ -23,6 +17,7 @@ struct EDGE{
 };
 
 void print_edge(edge *edge);
+
 
 
 
@@ -43,7 +38,11 @@ struct GRAPH{
 };
 
 struct PATH{
-	int *iterate;
+	int *iterate_nodes;
+	int *iterate_edges;
+	int path_count;
+	int max_count;
+	int extension_number;
 };
 
 int create_node(node *nodes,int new_ID, int order);
