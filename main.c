@@ -117,7 +117,31 @@ path *create_path(){
 
 
 void save_path(path *p){
-	paths[path_order] = *p;
+
+
+
+
+
+	path *temp =  (path *) malloc(sizeof(path));
+
+	temp -> iterate_edges = (int *) malloc(p -> path_count * sizeof(int));
+	temp -> iterate_nodes = (int *) malloc(p -> path_count * sizeof(int));
+	temp -> iterate_nodes = p -> iterate_nodes;
+	temp -> iterate_edges = p-> iterate_edges;
+	temp -> max_count = p -> max_count;
+	temp -> path_count = p -> path_count;
+
+	paths[path_order] = *temp;
+
+
+	int *array = paths[path_order].iterate_nodes;
+							int k = 0;
+							printf("PATH index %d: ",path_order);
+							for(k = 0 ; k <paths[path_order].path_count ; k++){
+								printf("%d ",array[k]);
+							}
+							printf("\n");
+
 	path_order++;
 }
 
@@ -150,22 +174,25 @@ void add_node_to_path(path *p, int node_index, int edge_index){
 }
 
 void remove_last(path *p){
-//	p -> iterate_nodes[p -> path_count] = -1;
-	p -> path_count--;
+	p -> iterate_nodes[p -> path_count] = -1;
+	p -> path_count = p -> path_count -1;
 }
 
 
 
 void dfs(int start, int end, int max_lenght, path *p){
 		node *node = &nodes[start];
+		printf("%d\n",node -> ID);
+		add_node_to_path(p,node -> ID,0);
 
 	if(start != end){
-		printf("%d %d",node -> ID,node -> visited);
+	//	printf("%d - %d",node -> ID,node -> visited);
 		int boolean = node -> visited;
-		if(boolean == 0){
+
 
 			node -> visited = 1;
 			int i = 0;
+
 	//		printf("%d \n",node -> ID);
 			for(i = 0 ; i < node -> neighbours_count ; i++){
 			//	printf("%d \n", node -> neighbours_count);
@@ -174,31 +201,32 @@ void dfs(int start, int end, int max_lenght, path *p){
 
 				if(edge -> node_to == start){
 					if(nodes[edge -> node_from].visited == 0){
-						printf("  "+nodes[edge->node_from].ID);
-						add_node_to_path(p,nodes[edge -> node_from].ID,node -> neighbours[i]);
+				//		printf("  "+nodes[edge->node_from].ID);
+					//	add_node_to_path(p,edge->node_from,node -> neighbours[i]);
 						dfs(edge -> node_from,end,max_lenght,p);
+
 					}
 				}else{
 					if(nodes[edge -> node_to].visited == 0){
-						printf("  "+nodes[edge->node_to].ID);
-						add_node_to_path(p,nodes[edge -> node_to].ID,node -> neighbours[i]);
+				//		printf("  "+nodes[edge->node_to].ID);
+					//	add_node_to_path(p,edge->node_to,node -> neighbours[i]);
 						dfs(edge -> node_to,end,max_lenght,p);
+
 					}
 				}
 			}
 			remove_last(p);
 			node -> visited = 0;
 
-		}else{
-			return;
-		}
 	}else{
-		save_path(p);
 
+		save_path(p);
+		remove_last(p);
+		p = NULL;
+		p = create_path();
 		//printf("start and end is equals\n");
 		node -> visited = 0;
 //		printf("%d \n",node -> ID);
-		printf("end \n");
 		return;
 	}
 }
@@ -236,7 +264,7 @@ int main()
 	//LINES_COUNT * 2 - for the worst case(each node different)
 	nodes = (node *) malloc(LINES_COUNT * 2 * sizeof(node));
 
-	paths = (path *) malloc(10 * sizeof(path));
+	paths = (path *) malloc(100 * sizeof(path));
 
 	while(fgets (line,40, fp) != NULL){
 
@@ -296,7 +324,7 @@ int main()
 			add_edge_to_node(&nodes[node_index_to],i);//add edge to node's array of edges - destination node
 			i++;
 	}
-
+/*
 	int q =0;
 	for( q = 0;q< node_order;q++){
 		printf("node[%d]: %d\n",q,nodes[q].ID );
@@ -312,17 +340,18 @@ int main()
 	int o = 0;
 	for( o = 0;o < LINES_COUNT;o++){
 			printf("ID: %d from: %d to: %d \n",o,edges[o].node_from,edges[o].node_to);
-		}
+		}*/
 	path *p = create_path();
-	add_node_to_path(p,nodes[0].ID,nodes[0].neighbours[0]);
+//	add_node_to_path(p,nodes[0].ID,nodes[0].neighbours[0]);
 	dfs(0,4,20,p);
 
-	int ll = 0;
+	int l = 0;
 	printf("test %d\n",path_order);
-	for( ll = 0 ; ll < path_order ; ll++){
-		int *array = paths[ll].iterate_nodes;
+	for( l = 0 ; l < path_order ; l++){
+	//	path *tmp = &paths[l];
+		int *array = paths[0].iterate_nodes;
 				int k = 0;
-				for(k = 0 ; k < paths[ll].path_count ; k++){
+				for(k = 0 ; k < paths[0].path_count ; k++){
 					printf("%d ",array[k]);
 				}
 				printf("\n");
@@ -331,6 +360,7 @@ int main()
 
 	free(nodes);
 	free(edges);
+	free(paths);
 	return 0;
 }
 
