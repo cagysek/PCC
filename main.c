@@ -3,14 +3,29 @@
 #include <string.h>
 #include "main.h"
 
-//position in nodes array
+//Position in nodes array
 static int node_order = 0;
 
+//Position in path array
 static int path_order = 0;
 
+//Number of lines
 static int LINES_COUNT;
 
+static int path_array_max = 1000;
+
+static int path_extension_number = 1;
+
 static int current_path_lenght = 0;
+
+static int previous_node_from_index = -1;
+
+static int previous_node_from_val = -1;
+
+static int previous_node_to_index = -1;
+
+static int previous_node_to_val = -1;
+
 node *nodes;
 edge *edges;
 path *paths;
@@ -31,7 +46,6 @@ int countlines(char *filename)
   if (fp == NULL){
   		return 0;
   }
-  printf("4");
   lines++;
   while ((ch = fgetc(fp)) != EOF)
     {
@@ -62,9 +76,9 @@ int create_node(node *nodes,int new_ID, int order){
 	//if not exists create new node and add to array of nodes
 	node *new_node = (node *) malloc(sizeof(node));
 	new_node -> ID = new_ID;
-	new_node -> neighbours = (int *) malloc(10 * sizeof(int));
+	new_node -> neighbours = (int *) malloc(100 * sizeof(int));
 	new_node -> neighbours_count = 0;
-	new_node -> neighbours_max_count = 9;
+	new_node -> neighbours_max_count = 99;
 	new_node -> neighbours_extension_number = 1;
 	new_node -> visited = 0;
 	nodes[order] = *new_node;
@@ -72,7 +86,9 @@ int create_node(node *nodes,int new_ID, int order){
 	return order;
 }
 
-
+/**
+ * Method to print edge array
+ */
 void print_edge(){
 	int o = 0;
 	for( o = 0;o < LINES_COUNT;o++){
@@ -80,7 +96,6 @@ void print_edge(){
 	}
 
 }
-
 
 /**
  * Method which manage add index of edges to array in node
@@ -92,9 +107,9 @@ void add_edge_to_node(node *node, int edge){
 	if((node -> neighbours_max_count - 1) < node -> neighbours_count){
 		int extension_number = node -> neighbours_extension_number + 1; //increase extension number by 1
 		node -> neighbours_extension_number = extension_number;
-		node -> neighbours_max_count = extension_number * 10; //increase max count of array(max array size)
+		node -> neighbours_max_count = extension_number * 100; //increase max count of array(max array size)
 		int *tmp;
-		tmp = realloc(node -> neighbours, extension_number * 10 * sizeof(node)); //save realloc
+		tmp = realloc(node -> neighbours, extension_number * 100 * sizeof(node)); //save realloc
 
 		if (!tmp)
 		{
@@ -112,6 +127,7 @@ void add_edge_to_node(node *node, int edge){
 	node -> neighbours_count++;
 }
 
+
 path *create_path(){
 	path *new_path = (path *) malloc(sizeof(path));
 	new_path -> extension_number = 1;
@@ -125,6 +141,29 @@ path *create_path(){
 
 
 void save_path(path *p){
+/*	if((path_order - 1) < path_array_max){
+		printf("on: %d ",path_extension_number);
+		path_extension_number++;
+		printf("after: %d ",path_extension_number);
+		path_array_max = path_extension_number * 1000; //increase max count of array(max array size)
+		path *tmp1;
+		tmp1 = realloc(paths, path_extension_number * 1000 * sizeof(path)); //save realloc
+
+
+		if (!tmp1)
+		{
+		  printf("Can not realloc paths arrays \n"); // if realloc return null
+		  return;
+		}
+		else
+		{
+			paths = tmp1;
+
+		}
+	}
+
+*/
+
 
 	path *temp =  (path *) malloc(sizeof(path));
 
@@ -201,14 +240,16 @@ void remove_last(path *p){
 }
 
 
-
+/**
+ * Method to find all paths between source and target
+ */
 void dfs(int start, int end, int max_lenght, path *p, int edge_index){
 	if((current_path_lenght -1)< max_lenght){ // -1 -> in path is current_lenght - 1(node) = number of edges between -> path lenght
-		node *node = &nodes[start];
-		add_node_to_path(p,node -> ID,edge_index);
+		node *node = &nodes[start]; //get current node
+		add_node_to_path(p,node -> ID,edge_index); // add NODE to path
 		current_path_lenght++;
 
-		if(start != end){
+		if(start != end){ //check if we find target
 			node -> visited = 1;
 			int i = 0;
 
@@ -217,7 +258,7 @@ void dfs(int start, int end, int max_lenght, path *p, int edge_index){
 
 				if(edge -> node_to == start){
 					if(nodes[edge -> node_from].visited == 0){
-						dfs(edge -> node_from, end, max_lenght, p, node -> neighbours[i]);
+						dfs(edge -> node_from, end, max_lenght, p, node -> neighbours[i]); //move deep to graph
 					}
 				}else{
 					if(nodes[edge -> node_to].visited == 0){
@@ -225,12 +266,14 @@ void dfs(int start, int end, int max_lenght, path *p, int edge_index){
 					}
 				}
 			}
-			remove_last(p);
-			node -> visited = 0;
-			current_path_lenght--;
+
+			//stuff what i need to do for find all paths
+			remove_last(p); //remove last in path
+			node -> visited = 0; //set visited to 0
+			current_path_lenght--; //decrease path lenght
 
 		}else{
-			save_path(p);
+			save_path(p); //if i find target save path
 			remove_last(p);
 			node -> visited = 0;
 			current_path_lenght--;
@@ -240,7 +283,9 @@ void dfs(int start, int end, int max_lenght, path *p, int edge_index){
 		return;
 	}
 }
-
+ /**
+  * Method to print node array
+  */
 void print_node(){
 	int q =0;
 	for( q = 0;q< node_order;q++){
@@ -255,7 +300,19 @@ void print_node(){
 	}
 }
 
+int rdn(int yy, int mm, int dd) { /* Rata Die day one is 0001-01-01 */
+    if (mm < 3)
+        yy--, mm += 12;
+    return 365*yy + yy/4 - yy/100 + yy/400 + (153*mm - 457)/5 + dd - 306;
+}
+
+
+
+/**
+ * Method to print path
+ */
 void print_path(){
+	fflush(stdout);
 	printf("Paths: %d\n",path_order);
 	FILE *f = fopen("output.txt", "w");
 	if (f == NULL)
@@ -264,9 +321,6 @@ void print_path(){
 	    exit(1);
 	}
 
-	/* print some text */
-
-
 
 	int l = 0;
 
@@ -274,34 +328,40 @@ void print_path(){
 			path *tmp = &paths[l];
 			int *array = tmp -> iterate_nodes;
 			int *array2 = tmp -> iterate_edges;
-					int k = 0;
-					for(k = 0 ; k < tmp->path_count ; k++){
-						fprintf(f,"%d",array[k]);
-						if(k < tmp->path_count -1){
-							fprintf(f,"-");
-						}
-					}
-					fprintf(f,";");
+			int k = 0;
 
-					for(k = 1 ; k < tmp->path_count; k++){
-						edge *tmp_edge = &edges[array2[k]];
-						fprintf(f,"%d",tmp_edge -> yy);
-						fprintf(f,"-%02d",tmp_edge -> mm);
-						fprintf(f,"-%02d",tmp_edge -> dd);
-						if(k < tmp->path_count - 1){
-							fprintf(f,",");
-						}
-					}
-					fprintf(f,";");
+			//first nodes
+			for(k = 0 ; k < tmp->path_count ; k++){
+				fprintf(f,"%d",array[k]);
+				if(k < tmp->path_count -1){
+					fprintf(f,"-");
+				}
+			}
+			fprintf(f,";");
+
+			//edges
+			for(k = 1 ; k < tmp->path_count; k++){
+				edge *tmp_edge = &edges[array2[k]];
+				fprintf(f,"%d",tmp_edge -> yy);
+				fprintf(f,"-%02d",tmp_edge -> mm);
+				fprintf(f,"-%02d",tmp_edge -> dd);
+				if(k < tmp->path_count - 1){
+					fprintf(f,",");
+				}
+			}
+			fprintf(f,";");
+
+			//metric
 
 
-
-					fprintf(f,"\n");
+			fprintf(f,"\n");
 		}
 		fclose(f);
 }
 
-
+/**
+ * free memory on heap
+ */
 void free_all(){
 	int i = 0;
 
@@ -329,17 +389,19 @@ void free_all(){
 
 }
 
-
+/**
+ * Load data and fill arrays
+ */
 int main()
 {
 	FILE *fp = fopen("input.csv","r");
 	if (fp == NULL){
 	  		return 0;
 	}
-	printf("Start");
+	printf("Start\n");
 	//get number of rows in file
 	LINES_COUNT = countlines("input.csv");
-	printf("%d",LINES_COUNT);
+
 	int i = 0;
 	char line[40];
 
@@ -352,8 +414,7 @@ int main()
 	//LINES_COUNT * 2 - for the worst case(each node different)
 	nodes = (node *) malloc(LINES_COUNT * 2 * sizeof(node));
 
-	paths = (path *) malloc(100 * sizeof(path));
-
+	paths = (path *) malloc(800000 * sizeof(path));
 	while(fgets (line,40, fp) != NULL){
 
 		char * pch;
@@ -370,15 +431,29 @@ int main()
 			{
 				int val = atoi(pch);
 				if( j == 0){
-					//create new node and return index in array or get index of existing node with same id
-					node_index_from = create_node(nodes,val,node_order);
 
+					if(val == previous_node_from_val){
+						node_index_from = previous_node_from_index;
+					}else{
+						//create new node and return index in array or get index of existing node with same id
+						node_index_from = create_node(nodes,val,node_order);
+						previous_node_from_val = val;
+						previous_node_from_index = node_index_from;
+					}
 					//set index to edge
 					e -> node_from = node_index_from;
 				}
 				if( j == 1){
-					//create new node and return index in array or get index of existing node with same id
-					node_index_to = create_node(nodes,val,node_order);
+
+					if(val == previous_node_to_val){
+						node_index_to = previous_node_to_index;
+					}else{
+						//create new node and return index in array or get index of existing node with same id
+						node_index_to = create_node(nodes,val,node_order);
+						previous_node_to_index = node_index_to;
+						previous_node_to_val = val;
+					}
+
 
 					//set index to edge
 					e -> node_to = node_index_to;
@@ -411,7 +486,7 @@ int main()
 			add_edge_to_node(&nodes[node_index_from],i);//add edge to node's array of edges - source node
 			add_edge_to_node(&nodes[node_index_to],i);//add edge to node's array of edges - destination node
 			i++;
-			printf("%d",i);
+
 	}
 
 //	print_node();
