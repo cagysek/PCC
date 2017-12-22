@@ -16,7 +16,7 @@ struct EDGE{
 	int yy;
 };
 
-void print_edge(edge *edge);
+void print_edge();
 
 
 
@@ -46,7 +46,7 @@ struct PATH{
 };
 
 int create_node(node *nodes,int new_ID, int order);
-void print_node(node *root);
+void print_node();
 void add_edge_to_node(node *node, int edge);
 
 
