@@ -3,18 +3,24 @@
 typedef struct EDGE edge;
 typedef struct NODE node;
 typedef struct PATH path;
+typedef struct DATE date;
 
+struct DATE{
+	int dd;
+	int mm;
+	int yy;
+
+};
 
 struct EDGE{
 	int edge_id;
 	int node_from;
 	int node_to;
-//	int node_from;
-//	int node_to;
-	int dd;
-	int mm;
-	int yy;
+	date *date;
+
 };
+
+
 
 void print_edge();
 
@@ -43,6 +49,7 @@ struct PATH{
 	int path_count;
 	int max_count;
 	int extension_number;
+	int metric;
 };
 
 int create_node(node *nodes,int new_ID, int order);

@@ -128,6 +128,88 @@ void add_edge_to_node(node *node, int edge){
 }
 
 
+int cmp_func_path_order (const void *a,const void *b){
+	printf("in\n");
+	path **x = (path**)
+	a;
+	path **y = (path**)b;
+	
+		
+
+
+	printf("loc %d \n",(*y) -> path_count );
+	printf("%d %d\n",(*x) -> path_count, (*y) ->path_count );
+
+	int dif = (*x) -> path_count - (*y) -> path_count;
+	if(dif == 0){
+		dif = (*x) -> metric - (*y) -> metric;
+	}
+	return dif;
+}
+
+
+/**
+ * Method to convert date to number
+ * Implementation of Rata Die algorithm
+ */
+int date_to_number(date *d) { 
+    int yy = d -> yy;
+    int mm = d -> mm;
+    int dd = d -> dd;
+
+    if (mm < 3)
+        yy--, mm += 12;
+    return (365 * yy) + (yy / 4) - (yy / 100) + (yy / 400) + ((153 * mm - 457) / 5) + dd - 306;
+}
+
+
+date *create_date(int yy, int mm, int dd){
+	date *new_date = (date *) malloc(sizeof(date));
+	new_date -> yy = yy;
+	new_date -> mm = mm;
+	new_date -> dd = dd;
+
+	return new_date;
+}
+
+
+int count_metric(path *p){
+	date *d_max = create_date(0, 0, 0);
+	date *d_min = create_date(9999,99,99);
+	date *d_temp = NULL;
+
+	int i;
+	for(i = 1 ; i < p->path_count; i++){
+		edge *tmp_edge = &edges[p -> iterate_edges[i]]; //get edge from path
+		date *d_temp = tmp_edge -> date; //get date from edge
+
+		//get min
+		if(d_temp -> yy < d_min -> yy){
+        	d_min = d_temp;
+	    }else if (d_temp -> yy == d_min -> yy && d_temp -> mm < d_min -> mm){
+	        d_min = d_temp;
+	    }else if (d_temp -> yy == d_min -> yy && d_temp -> mm == d_min -> mm && d_temp -> dd < d_min -> dd){
+	        d_min = d_temp;
+	    }
+
+	    //get max
+	    if(d_temp -> yy > d_max -> yy){
+        	d_max = d_temp;
+	    }else if (d_temp -> yy == d_max -> yy && d_temp -> mm > d_max -> mm){
+	        d_max = d_temp;
+	    }else if (d_temp -> yy == d_max -> yy && d_temp -> mm == d_max -> mm && d_temp -> dd > d_max -> dd){
+	        d_max = d_temp;
+	    }
+	}
+
+	int dif = date_to_number(d_max) - date_to_number(d_min);
+
+	//free(d_max);
+	//free(d_min);
+
+	return dif;
+}
+
 path *create_path(){
 	path *new_path = (path *) malloc(sizeof(path));
 	new_path -> extension_number = 1;
@@ -167,7 +249,7 @@ void save_path(path *p){
 
 	path *temp =  (path *) malloc(sizeof(path));
 
-	temp -> iterate_edges = (int *) malloc(p -> path_count * sizeof(int));
+	temp -> iterate_edges = (int *) malloc((p -> path_count ) * sizeof(int));
 	temp -> iterate_nodes = (int *) malloc(p -> path_count * sizeof(int));
 	int i = 0;
 
@@ -175,6 +257,10 @@ void save_path(path *p){
 		temp -> iterate_edges[i] = p-> iterate_edges[i];
 		temp -> iterate_nodes[i] = p-> iterate_nodes[i];
 	}
+	/*for(i = 0 ; i < p -> path_count - 1 ; i++){
+		temp -> iterate_edges[i] = p-> iterate_edges[i];
+		
+	}*/
 	temp -> max_count = p -> max_count;
 	temp -> path_count = p -> path_count;
 
@@ -200,6 +286,8 @@ void save_path(path *p){
 		printf("\n");
 
 */
+	int metric = count_metric(temp);
+	temp -> metric = metric;
 	paths[path_order] = *temp;
 	path_order++;
 }
@@ -244,7 +332,7 @@ void remove_last(path *p){
  * Method to find all paths between source and target
  */
 void dfs(int start, int end, int max_lenght, path *p, int edge_index){
-	if((current_path_lenght -1)< max_lenght){ // -1 -> in path is current_lenght - 1(node) = number of edges between -> path lenght
+	if((current_path_lenght - 1)< max_lenght){ // -1 -> in path is current_lenght - 1(node) = number of edges between -> path lenght
 		node *node = &nodes[start]; //get current node
 		add_node_to_path(p,node -> ID,edge_index); // add NODE to path
 		current_path_lenght++;
@@ -300,11 +388,7 @@ void print_node(){
 	}
 }
 
-int rdn(int yy, int mm, int dd) { /* Rata Die day one is 0001-01-01 */
-    if (mm < 3)
-        yy--, mm += 12;
-    return 365*yy + yy/4 - yy/100 + yy/400 + (153*mm - 457)/5 + dd - 306;
-}
+
 
 
 
@@ -312,7 +396,7 @@ int rdn(int yy, int mm, int dd) { /* Rata Die day one is 0001-01-01 */
  * Method to print path
  */
 void print_path(){
-	fflush(stdout);
+	//fflush(stdout);
 	printf("Paths: %d\n",path_order);
 	FILE *f = fopen("output.txt", "w");
 	if (f == NULL)
@@ -332,29 +416,33 @@ void print_path(){
 
 			//first nodes
 			for(k = 0 ; k < tmp->path_count ; k++){
-				fprintf(f,"%d",array[k]);
+				printf("%d",array[k]);
 				if(k < tmp->path_count -1){
-					fprintf(f,"-");
+					printf("-");
 				}
 			}
-			fprintf(f,";");
+			printf(";");
 
 			//edges
+
+
 			for(k = 1 ; k < tmp->path_count; k++){
 				edge *tmp_edge = &edges[array2[k]];
-				fprintf(f,"%d",tmp_edge -> yy);
-				fprintf(f,"-%02d",tmp_edge -> mm);
-				fprintf(f,"-%02d",tmp_edge -> dd);
+				date *tmp_date = tmp_edge -> date;
+				printf("%d",tmp_date -> yy);
+				printf("-%02d",tmp_date -> mm);
+				printf("-%02d",tmp_date -> dd);
 				if(k < tmp->path_count - 1){
-					fprintf(f,",");
+					printf(",");
 				}
 			}
-			fprintf(f,";");
+			printf(";");
 
+			printf("%d\n", tmp -> metric );
 			//metric
 
 
-			fprintf(f,"\n");
+			printf("\n");
 		}
 		fclose(f);
 }
@@ -394,13 +482,13 @@ void free_all(){
  */
 int main()
 {
-	FILE *fp = fopen("input.csv","r");
+	FILE *fp = fopen("inputt.csv","r");
 	if (fp == NULL){
 	  		return 0;
 	}
 	printf("Start\n");
 	//get number of rows in file
-	LINES_COUNT = countlines("input.csv");
+	LINES_COUNT = countlines("inputt.csv");
 
 	int i = 0;
 	char line[40];
@@ -414,13 +502,15 @@ int main()
 	//LINES_COUNT * 2 - for the worst case(each node different)
 	nodes = (node *) malloc(LINES_COUNT * 2 * sizeof(node));
 
-	paths = (path *) malloc(800000 * sizeof(path));
+	paths = (path *) malloc(1000000 * sizeof(path));
 	while(fgets (line,40, fp) != NULL){
 
 		char * pch;
 		pch = strtok (line, ";");
 
 		edge *e = (edge *) malloc(sizeof(edge));
+		date *d = (date *) malloc(sizeof(date));
+		
 
 		int j = 0;
 		int node_index_from = 0;
@@ -467,13 +557,16 @@ int main()
 					while( pch2 != NULL){
 						int val2 = atoi(pch2);
 						if( k == 0){
-							e -> yy = val2;
+							d -> yy = val2;
+							//e -> yy = val2;
 						}
 						if( k == 1){
-							e -> mm = val2;
+							d -> mm = val2;
+							//e -> mm = val2;
 						}
 						if( k == 2){
-							e -> dd = val2;
+							d -> dd = val2;
+							//e -> dd = val2;
 						}
 						k++;
 						pch2 = strtok(NULL,"-");
@@ -482,6 +575,7 @@ int main()
 				j++;
 				pch = strtok(NULL,";");
 			}
+			e -> date = d;
 			edges[i] = *e; //add edge to array of edges
 			add_edge_to_node(&nodes[node_index_from],i);//add edge to node's array of edges - source node
 			add_edge_to_node(&nodes[node_index_to],i);//add edge to node's array of edges - destination node
@@ -494,11 +588,14 @@ int main()
 	printf("LINES: %d \n", LINES_COUNT);
 	printf("Loaded\n");
 	path *p = create_path();
+	printf("start DFS\n");
 	dfs(0, 4, 3, p, -1);
-
+	printf("END DFS\n");
+	printf("order: %d\n",path_order );
+	qsort(paths,path_order,sizeof(path *),cmp_func_path_order);
 	print_path();
 
-	free_all();
+	//free_all();
 
 	return 0;
 }
