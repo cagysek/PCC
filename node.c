@@ -4,6 +4,9 @@
 #include "structure.h"
 #include "global.h"
 
+
+static const int DEFAULT_NEIGHBORS_SIZE = 100;
+
 /**
  * Get index of source in nodes array
  * @param source source value
@@ -54,13 +57,14 @@ int create_node(int new_ID, int order){
 	//if not exists create new node and add to array of nodes
 	node *new_node = (node *) malloc(sizeof(node));
 	new_node -> ID = new_ID;
-	new_node -> neighbors = (int *) malloc(100 * sizeof(int));
+	new_node -> neighbors = (int *) malloc(DEFAULT_NEIGHBORS_SIZE * sizeof(int));
 	new_node -> neighbors_count = 0;
-	new_node -> neighbors_max_count = 99;
+	new_node -> neighbors_max_count = DEFAULT_NEIGHBORS_SIZE;
 	new_node -> neighbors_extension_number = 1;
 	new_node -> visited = 0;
 	nodes[order] = *new_node;
 	node_order++;
+
 	return order;
 }
 
@@ -76,9 +80,9 @@ void add_edge_to_node(node *node, int edge){
 	if((node -> neighbors_max_count - 1) < node -> neighbors_count){
 		int extension_number = node -> neighbors_extension_number + 1; //increase extension number by 1
 		node -> neighbors_extension_number = extension_number;
-		node -> neighbors_max_count = extension_number * 100; //increase max count of array(max array size)
+		node -> neighbors_max_count = extension_number * DEFAULT_NEIGHBORS_SIZE; //increase max count of array(max array size)
 		int *tmp;
-		tmp = realloc(node -> neighbors, extension_number * 100 * sizeof(node)); //save realloc
+		tmp = realloc(node -> neighbors, extension_number * DEFAULT_NEIGHBORS_SIZE * sizeof(node)); //save realloc
 
 		if (!tmp)
 		{

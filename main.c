@@ -10,7 +10,7 @@ int node_order = 0;
 //Position in path array
 int path_order = 0;
 
-
+static const int DEFAULT_PATH_SIZE = 100000;
 
 
 node *nodes;
@@ -26,25 +26,27 @@ void free_all(){
 
 	//free paths
 	for(i = 0 ; i < path_order ; i++){
-		free(&paths[i].iterate_nodes);
-		free(&paths[i].iterate_edges);
-		free(&paths[i]);
+		//free(&paths[i].iterate_nodes);
+		//free(&paths[i].iterate_edges);
+		//free(&paths[i]);
 	}
 	free(paths);
 
+	printf(" after paths\n");
 	//free edges
 	for(i = 0 ; i < LINES_COUNT ; i++){
-		free(&edges[i]);
+		//free(&edges[i]);
 	}
 	free(edges);
 
+	printf(" after edges\n");
 	//free nodes
 	for(i = 0 ; i < LINES_COUNT * 2; i++){
-		free(&nodes[i].neighbors);
-		free(&nodes[i]);
+		//free(nodes[i].neighbors);
+		//free(*nodes[i]);
 	}
 	free(nodes);
-
+printf(" after nodes\n");
 
 }
 
@@ -78,7 +80,8 @@ int main(int argc, char *argv[])
 	nodes = (node *) malloc(LINES_COUNT * 2 * sizeof(node));
 
 	//malloc memory for paths array
-	paths = (path *) malloc(100000 * sizeof(path));//default size is 10 000 paths
+	//deafault size is 100 000
+	paths = (path *) malloc(DEFAULT_PATH_SIZE * sizeof(path));//default size is 10 000 paths
 
 	load_topology(filename);
 
@@ -86,7 +89,6 @@ int main(int argc, char *argv[])
 	int target_index = get_target_index(target);
 
 	if(source_index != -1 && target_index != -1){
-
 
 		path *p = create_path();
 
@@ -96,7 +98,7 @@ int main(int argc, char *argv[])
 
 		print_path();
 
-	//	free_all();
+		free_all();
 
 		return EXIT_SUCCESS;
 	}else{

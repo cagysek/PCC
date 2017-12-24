@@ -5,23 +5,23 @@
 #include "global.h"
 
 
-int LINES_COUNT;
+int LINES_COUNT; //count of lines
 
-int previous_node_from_index = -1;
+//Variables to store previous values, if they repeat on next line I dont need search it again 
+int previous_node_from_index = -1; //stored node from index in array
 
-int previous_node_from_val = -1;
+int previous_node_from_val = -1; //stored node from id 
 
-int previous_node_to_index = -1;
+int previous_node_to_index = -1; //stored node to index in array
 
-int previous_node_to_val = -1;
+int previous_node_to_val = -1; //stored node to id 
 
 /**
  * Get number of lines in input file
  * @param filnename filename
  * @return number of lines
  */
-int countlines(char *filename)
-{
+int countlines(char *filename){
 
   FILE *fp = fopen(filename,"r");
   int ch=0;
@@ -33,8 +33,9 @@ int countlines(char *filename)
   lines++;
   while ((ch = fgetc(fp)) != EOF)
     {
-      if (ch == '\n')
-    lines++;
+      if (ch == '\n'){
+    	lines++;
+   	  }
     }
 
   fclose(fp);
@@ -44,7 +45,10 @@ int countlines(char *filename)
 
 /**
  *	Read topology and fill arrays
- * 	read lines from file. Split by ";" and create nodes and edges
+ * 	read lines from file. Split by ";", create nodes and edges -> save it to arrays
+ *  create nodes -> check if exist, yes -> return index in array, no -> create new and return index
+ *	create edges -> working with array indexes from nodes array. NOT with their ID's
+ * 	date(value of edge) is stored in struct date, where yy is year, mm is month, dd is day
  */
 void load_topology(char *filename){
 	FILE *fp = fopen(filename,"r");
