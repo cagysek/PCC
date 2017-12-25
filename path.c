@@ -109,6 +109,7 @@ void save_path(path *p){
 	//add path to paths
 	paths[path_order] = *temp;
 	path_order++;
+	free(temp);
 }
 
 /**
@@ -164,7 +165,7 @@ void print_path(){
 		printf("%d\n", tmp -> metric );
 		
 	}
-	printf("Path count: %d\n",path_order );
+	//printf("Path count: %d\n",path_order );
 }
 
 /**
@@ -178,7 +179,7 @@ int cmp_func_path_order (const void * a,const void * b){
 	path **y = (path**)&b;
 
 	int dif = (*x) -> path_count - (*y) -> path_count;
-	
+
 	if(dif == 0){ //for equal paths
 		dif = (*x) -> metric - (*y) -> metric;
 	}

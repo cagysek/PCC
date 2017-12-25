@@ -1,6 +1,6 @@
 CC = gcc
 BIN = dfs.exe
-OBJ = main.o date.o edge.o node.o path.o reader.o dfs.o
+OBJ = date.o edge.o node.o path.o reader.o dfs.o main.o
 
 all: $(BIN) clean
 

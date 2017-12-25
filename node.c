@@ -64,7 +64,8 @@ int create_node(int new_ID, int order){
 	new_node -> visited = 0;
 	nodes[order] = *new_node;
 	node_order++;
-
+	//free(new_node ->neighbors);
+	free(new_node);
 	return order;
 }
 

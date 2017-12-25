@@ -53,7 +53,6 @@ int countlines(char *filename){
 void load_topology(char *filename){
 	FILE *fp = fopen(filename,"r");
 	
-
 	int i = 0;
 	char line[40];
 
@@ -130,6 +129,8 @@ void load_topology(char *filename){
 		edges[i] = *e; //add edge to array of edges
 		add_edge_to_node(&nodes[node_index_from],i);//add edge to node's array of edges - source node
 		add_edge_to_node(&nodes[node_index_to],i);//add edge to node's array of edges - destination node
+		free(e);
+		
 		i++;
 	}
 }

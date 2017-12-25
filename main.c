@@ -26,27 +26,25 @@ void free_all(){
 
 	//free paths
 	for(i = 0 ; i < path_order ; i++){
-		//free(&paths[i].iterate_nodes);
-		//free(&paths[i].iterate_edges);
-		//free(&paths[i]);
+		free(paths[i].iterate_nodes);
+		free(paths[i].iterate_edges);
 	}
 	free(paths);
 
-	printf(" after paths\n");
+	
 	//free edges
 	for(i = 0 ; i < LINES_COUNT ; i++){
-		//free(&edges[i]);
+		free(edges[i].date);
 	}
 	free(edges);
 
-	printf(" after edges\n");
+
 	//free nodes
 	for(i = 0 ; i < LINES_COUNT * 2; i++){
-		//free(nodes[i].neighbors);
-		//free(*nodes[i]);
+		free(nodes[i].neighbors);
+		
 	}
 	free(nodes);
-printf(" after nodes\n");
 
 }
 
@@ -94,10 +92,15 @@ int main(int argc, char *argv[])
 
 		dfs(source_index, target_index, max_lenght, p, -1);
 
+
+
 		qsort(paths,path_order,sizeof(path),cmp_func_path_order);
 
 		print_path();
 
+		free(p -> iterate_edges);
+		free(p -> iterate_nodes);
+		free(p);
 		free_all();
 
 		return EXIT_SUCCESS;
